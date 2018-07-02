@@ -76,7 +76,7 @@ spam_files = glob('apache_spam/*')
 bodies = extract_bodies(read_files(spam_files, False))
 
 
-# In[10]:
+# In[144]:
 
 
 import spacy
@@ -86,14 +86,57 @@ from tqdm import tqdm_notebook
 nlp = spacy.load('en')
 regex = re.compile('\s+')
 
-tokenized_bodies = [] 
+tokenized_bodies = []
 for body in tqdm_notebook(bodies, total=len(bodies)):
   tokenized_bodies.append(tokenize_clean_body(body, nlp, regex))
+tokenized_bodies = set(tokenized_bodies)
 
 
-# In[12]:
+# In[145]:
+
+
+equal_sum = 0
+for body_a in tokenized_bodies:
+  for body_b in tokenized_bodies:
+    if body_a == body_b: equal_sum += 1
+print(equal_sum)
+
+
+# In[165]:
 
 
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import NMF
 
-tfidf = TfidfVectorizer(tokenized_bodies, min_df=2)
+tfidf = TfidfVectorizer(tokenized_bodies, min_df=2, max_features=50000)
+tfidf_docs = tfidf.fit_transform(tokenized_bodies)
+topic_count = 7
+nmf = NMF(topic_count).fit(tfidf_docs)
+nmf_docs = nmf.transform(tfidf_docs)
+
+
+# In[166]:
+
+
+import numpy as np
+from scipy.spatial.distance import cdist
+
+distances = cdist(nmf_docs, nmf_docs, metric='euclidean')
+np.fill_diagonal(distances, 1000)
+maxind = np.unravel_index(np.argsort(distances, axis=None)[0], distances.shape); print(maxind)
+
+
+# In[167]:
+
+
+print(nmf_docs[maxind[0]])
+print(nmf_docs[maxind[1]])
+
+
+# In[168]:
+
+
+print(bodies[maxind[0]])
+print('-'*83)
+print(bodies[maxind[1]])
+
