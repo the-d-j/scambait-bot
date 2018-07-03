@@ -1,8 +1,8 @@
-!pip install chatterbot
+
 
 # -*- coding: utf-8 -*-
 from chatterbot import ChatBot
-#from settings import TWITTER
+from settings import TWITTER
 import logging
 
 
@@ -33,10 +33,10 @@ chatbot = ChatBot(
     input_adapter="chatterbot.input.VariableInputTypeAdapter",
     output_adapter="chatterbot.output.TerminalAdapter",
     database="./twitter-database.db",
-    twitter_consumer_key="",
-    twitter_consumer_secret="",
-    twitter_access_token_key="",
-    twitter_access_token_secret="",
+    twitter_consumer_key=TWITTER["CONSUMER_KEY"],
+    twitter_consumer_secret=TWITTER["CONSUMER_SECRET"],
+    twitter_access_token_key=TWITTER["ACCESS_TOKEN"],
+    twitter_access_token_secret=TWITTER["ACCESS_TOKEN_SECRET"],
     trainer= 'chatterbot.trainers.TwitterTrainer', random_seed_word="india"
 )
 
