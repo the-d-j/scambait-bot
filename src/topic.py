@@ -21,25 +21,26 @@ def process_html(raw_email_body):
   return raw_email_body
 
 def get_topic(raw_email_body):
-  load_models()
-  email_body = process_email_body(raw_email_body))
-  return 0
+  models = load_models()
+  email_body = process_email_body(raw_email_body, models)
+  return score_topics(email_body, models).argmax()
 
-def process_email_body(email_body):
-  return process_html(raw_email_body)
+def process_email_body(raw_email_body, models):
+  return tokenize_clean_body(process_html(raw_email_body), models)
 
-models = None
 def load_models():
-  if models is None:
-    sklearn_models = pickle.load(open('models.p', 'rb'))
-    models = {
-      'tfidf':sklearn_models['tfidf']
-      'nmf':sklearn_models['nmf']
-      'regex':re.compile('\s+')
-      'nlp':spacy.load('en')
-    }
+  sklearn_models = pickle.load(open('models.p', 'rb'))
+  return {
+    'tfidf':sklearn_models['tfidf']
+    'nmf':sklearn_models['nmf']
+    'regex':re.compile('\s+')
+    'nlp':spacy.load('en')
+  }
   
-def tokenize_clean_body(body):
-return ' '.join([token.lemma_ for token in 
-            models['nlp'](re.sub(models['regex'], ' ', body)) 
-            if not token.is_stop and not token.is_punct])
+def tokenize_clean_body(body, models):
+  return ' '.join([token.lemma_ for token in 
+                  models['nlp'](re.sub(models['regex'], ' ', body)) 
+                  if not token.is_stop and not token.is_punct])
+
+def score_topics(body, models):
+  return modesl['nmf'].transform(models['tfidf'].transform([body]))
